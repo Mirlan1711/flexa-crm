@@ -31,6 +31,8 @@ function AppIcon({ name, size = 18 }) {
     bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></>,
     help: <><circle cx="12" cy="12" r="9" /><path d="M9.6 9a2.5 2.5 0 1 1 4.2 1.8c-1 .9-1.8 1.3-1.8 2.7M12 17h.01" /></>,
     logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></>,
+    moon: <><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z" /></>,
+    sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" /></>,
   };
   return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 }
@@ -69,7 +71,13 @@ function NotificationsBell({ authenticated }) {
 export default function App() {
   const [authenticated, setAuthenticated] = useState(Boolean(localStorage.getItem("access_token")));
   const [currentUser, setCurrentUser] = useState(null);
+  const [theme, setTheme] = useState(() => localStorage.getItem("flexa-theme") || "light");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("flexa-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     const updateAuth = () => {
@@ -91,8 +99,7 @@ export default function App() {
   return (
     <div className="app-shell">
       {authenticated && <aside className="sidebar">
-        <Link className="brand" to="/dashboard"><span className="brand-mark">f</span><span>flexa</span></Link>
-        <div className="workspace-switcher"><span className="workspace-dot" /> <span><small>Рабочее пространство</small><strong>flexa CRM</strong></span><span className="workspace-chevron">⌄</span></div>
+        <Link className="brand" to="/dashboard"><span>flexa</span></Link>
         <nav className="sidebar-nav" aria-label="Основная навигация">
           <span className="nav-label">Обзор</span>
           {navItems.map(([to, label, icon]) => <NavLink key={to} to={to} className={({ isActive }) => isActive ? "is-active" : ""}><AppIcon name={icon} /><span>{label}</span></NavLink>)}
@@ -107,7 +114,7 @@ export default function App() {
         <div className="sidebar-bottom"><Link to="/profile"><AppIcon name="users" /><span>Профиль</span></Link><button className="sidebar-logout" onClick={signOut}><AppIcon name="logout" /><span>Выйти</span></button></div>
       </aside>}
       <div className={authenticated ? "app-main" : "app-main app-main-public"}>
-        {authenticated && <header className="topbar"><div className="topbar-title"><span className="mobile-brand">flexa</span><span className="topbar-kicker">Рабочая область</span><strong>{currentUser ? `Добро пожаловать, ${currentUser.first_name || currentUser.username}` : "Добро пожаловать"}</strong></div><div className="topbar-actions"><NotificationsBell authenticated={authenticated} /><Link className="topbar-help" to="/profile" aria-label="Справка"><AppIcon name="help" size={19} /></Link><Link className="topbar-avatar" to="/profile" aria-label="Открыть профиль">{(currentUser?.first_name || currentUser?.username || "U").charAt(0).toUpperCase()}</Link></div></header>}
+        {authenticated && <header className="topbar"><div className="topbar-title"><span className="mobile-brand">flexa</span><span className="topbar-kicker">Рабочая область</span><strong>{currentUser ? `Добро пожаловать, ${currentUser.first_name || currentUser.username}` : "Добро пожаловать"}</strong></div><div className="topbar-actions"><NotificationsBell authenticated={authenticated} /><button className="theme-toggle" onClick={() => setTheme((value) => value === "dark" ? "light" : "dark")} aria-label={theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему"} title={theme === "dark" ? "Светлая тема" : "Тёмная тема"}><AppIcon name={theme === "dark" ? "sun" : "moon"} size={18} /></button><Link className="topbar-help" to="/profile" aria-label="Справка"><AppIcon name="help" size={19} /></Link><Link className="topbar-avatar" to="/profile" aria-label="Открыть профиль">{(currentUser?.first_name || currentUser?.username || "U").charAt(0).toUpperCase()}</Link></div></header>}
         <main className="content">
         <Routes>
           <Route path="/" element={<LoginPage />} />
