@@ -42,6 +42,16 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
+class AssigneeListView(generics.ListAPIView):
+    """Список активных сотрудников для назначения задач."""
+
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return self.serializer_class.Meta.model.objects.filter(is_active=True).order_by("username")
+
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]

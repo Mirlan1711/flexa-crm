@@ -44,6 +44,8 @@ export default function ClientsPage() {
     Promise.all([getClientStatuses(), getClientsPage({ page: 1, ordering }), getCustomFields("client")])
       .then(([loadedStatuses, loadedClients, loadedCustomFields]) => {
         setStatuses(loadedStatuses);
+        const defaultStatus = loadedStatuses.find((status) => status.name.trim().toLowerCase() === "новый");
+        if (defaultStatus) setForm((current) => current.status ? current : { ...current, status: String(defaultStatus.id) });
         setClients(loadedClients.items); setPageCount(loadedClients.count);
         setCustomFields(loadedCustomFields);
       })
@@ -167,7 +169,7 @@ export default function ClientsPage() {
           <label>Название<input name="name" value={form.name} onChange={changeForm} required /></label>
           <label>Телефон<input name="phone" value={form.phone} onChange={changeForm} /></label>
           <label>Email<input type="email" name="email" value={form.email} onChange={changeForm} /></label>
-          <label>Статус<select name="status" value={form.status} onChange={changeForm}><option value="">Новый</option>{statuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}</select></label>
+          <label>Статус<select name="status" value={form.status} onChange={changeForm}>{statuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}</select></label>
           {customFields.map((field) => <CustomFieldInput key={field.id} field={field} value={form.custom_data[field.field_key]} onChange={(value) => setForm({ ...form, custom_data: { ...form.custom_data, [field.field_key]: value } })} />)}
           <label>Описание<textarea name="description" value={form.description} onChange={changeForm} rows="4" /></label>
           {error && <p className="error">{error}</p>}{notice && <p className="success">{notice}</p>}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createStatus, deleteStatus, getStatuses, updateStatus } from "../services/api";
 
 const emptyForm = {
-  name: "", entity_type: "client", color: "#64748b", sort_order: 0,
+  name: "", entity_type: "client", color: "#64748b", sort_order: "0",
   is_final: false, is_active: true,
 };
 
@@ -25,6 +25,15 @@ export default function StatusesPage() {
 
   useEffect(() => { loadStatuses(); }, []);
 
+  const entityStatuses = statuses
+    .filter((item) => item.entity_type === form.entity_type)
+    .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id);
+  const sortOptions = [...entityStatuses];
+  if (!sortOptions.some((item) => String(item.sort_order) === String(form.sort_order))) {
+    sortOptions.push({ id: "new-position", sort_order: form.sort_order, name: "Новая позиция" });
+  }
+  if (!sortOptions.length) sortOptions.push({ id: "first-position", sort_order: 0, name: "Первый статус" });
+
   function changeForm(event) {
     const { name, value, type, checked } = event.target;
     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
@@ -32,7 +41,7 @@ export default function StatusesPage() {
 
   function startEdit(item) {
     setEditingId(item.id);
-    setForm({ ...item, sort_order: item.sort_order ?? 0 });
+    setForm({ ...item, sort_order: String(item.sort_order ?? 0) });
     setError("");
     setMessage("");
   }
@@ -81,8 +90,8 @@ export default function StatusesPage() {
           <h2>{editingId ? "Изменение статуса" : "Новый статус"}</h2>
           <label>Название<input name="name" value={form.name} onChange={changeForm} required maxLength="100" /></label>
           <label>Раздел<select name="entity_type" value={form.entity_type} onChange={changeForm} disabled={Boolean(editingId)}>{Object.entries(entityLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
-          <label>Цвет<input type="color" name="color" value={form.color} onChange={changeForm} /></label>
-          <label>Порядок<input type="number" min="0" name="sort_order" value={form.sort_order} onChange={changeForm} /></label>
+          <label>Цвет<div className="color-control"><input className="color-picker" type="color" name="color" value={form.color} onChange={changeForm} /><input name="color" value={form.color} onChange={changeForm} maxLength="7" pattern="#[0-9a-fA-F]{6}" aria-label="Код цвета" /></div></label>
+          <label>Порядок<select name="sort_order" value={String(form.sort_order)} onChange={changeForm}>{sortOptions.map((item) => <option key={item.id} value={item.sort_order}>{item.sort_order} — {item.name}</option>)}</select></label>
           <label className="checkbox-label"><input type="checkbox" name="is_final" checked={form.is_final} onChange={changeForm} /> Финальный статус</label>
           <label className="checkbox-label"><input type="checkbox" name="is_active" checked={form.is_active} onChange={changeForm} /> Статус активен</label>
           {error && <p className="error">{error}</p>}

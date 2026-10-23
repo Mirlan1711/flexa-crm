@@ -36,6 +36,8 @@ export default function DealsPage() {
         setPageCount(loadedDeals.count);
         setClients(loadedClients);
         setStatuses(loadedStatuses);
+        const defaultStatus = loadedStatuses.find((status) => status.name.trim().toLowerCase() === "новая");
+        if (defaultStatus) setForm((current) => current.status ? current : { ...current, status: String(defaultStatus.id) });
         setCustomFields(loadedCustomFields);
       })
       .catch((requestError) => setError(requestError.message));
@@ -196,7 +198,7 @@ export default function DealsPage() {
           <h2>{editingId ? "Редактирование сделки" : "Новая сделка"}</h2>
           <label>Название<input name="name" value={form.name} onChange={changeForm} required /></label>
           <label>Клиент<select name="client" value={form.client} onChange={changeForm} required><option value="">Выберите клиента</option>{clients.map((client) => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>
-          <label>Статус<select name="status" value={form.status} onChange={changeForm}><option value="">Новая</option>{statuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}</select></label>
+          <label>Статус<select name="status" value={form.status} onChange={changeForm}>{statuses.map((status) => <option key={status.id} value={status.id}>{status.name}</option>)}</select></label>
           <label>Сумма<input type="number" min="0" step="0.01" name="amount" value={form.amount} onChange={changeForm} /></label>
           <label>Дата завершения<input type="date" name="planned_end_date" value={form.planned_end_date} onChange={changeForm} /></label>
           <label>Описание<textarea name="description" value={form.description} onChange={changeForm} rows="4" /></label>

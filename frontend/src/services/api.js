@@ -125,6 +125,10 @@ export function getUsers() {
   return request("/auth/users/");
 }
 
+export function getAssignees() {
+  return request("/auth/assignees/");
+}
+
 export function updateUser(id, user) {
   return request(`/auth/users/${id}/`, { method: "PATCH", body: JSON.stringify(user) });
 }
