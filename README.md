@@ -2,6 +2,20 @@
 
 Учебный проект практики: React + Django REST Framework + PostgreSQL.
 
+## Интерфейс
+
+Панель управления с ключевыми показателями CRM:
+
+![Панель управления flexa CRM](docs/dashboard.png)
+
+Работа с клиентской базой:
+
+![Раздел клиентов flexa CRM](docs/clients.png)
+
+Сделки и их статусы:
+
+![Раздел сделок flexa CRM](docs/deals.png)
+
 ## Структура
 
 - `backend` — API, авторизация и бизнес-логика на Django.
